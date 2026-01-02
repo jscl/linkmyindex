@@ -1,0 +1,12 @@
+Transcribe the following PDF index into a JSON list of objects.
+Each block in the index starts with a topic (headline).
+If no topic is found directly above the entry, use the topic from the previous entry, usually it is also repeated in the headline of the page directly beneath the page number.
+Each entry typically has:
+1. Sub-headline / Location (ending with ;) remove the ;
+2. Author (ending with ;) remove the ;
+3. Date (ending with ;) remove the ;
+4. Page number (p.NN.), remove the p.
+
+JSON object fields: "topic", "subhead", "author", "date", "page", "index_page".
+The "index_page" is the page number where the entry is found in the index, usually found in the headline of the page.
+Output ONLY THE RAW JSON LIST.

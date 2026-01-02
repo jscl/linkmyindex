@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mennonitische Rundschau Index</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:wght@700&family=Outfit:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --bg: #f9fbff;
+            --card-bg: #ffffff;
+            --text-main: #2c3e50;
+            --text-muted: #7f8c8d;
+            --border: #e0e6ed;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            transition: background 0.3s;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-bottom: 30px;
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+        }
+
+        .btn-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow);
+            transition: all 0.2s;
+            color: var(--primary);
+        }
+
+        .btn-toggle:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
+        .btn-toggle.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding: 60px 40px;
+            background: linear-gradient(135deg, #ffffff 0%, #f0f4f8 100%);
+            border-radius: 40px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        h1 {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 3.5rem;
+            margin: 0;
+            color: var(--primary);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-top: 15px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: 400;
+        }
+
+        /* PDF-like List View */
+        .pdf-topic {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-top: 30px;
+            margin-bottom: 10px;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 5px;
+        }
+
+        .pdf-entry {
+            margin-left: 40px;
+            margin-bottom: 8px;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            line-height: 1.5;
+            display: flow-root;
+            /* Fix for potential float issues if added later */
+        }
+
+        .pdf-entry:hover {
+            border-left-color: var(--accent);
+            background: #f0f4f8;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .entry-content {
+            display: inline;
+        }
+
+        .entry-meta {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .entry-page {
+            float: right;
+            margin-left: 15px;
+        }
+
+        .entry-index-location {
+            color: #999;
+            font-size: 0.8rem;
+            margin-right: 15px;
+            float: right;
+        }
+
+        /* Accordion Styles */
+        .topic-accordion {
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            margin-bottom: 10px;
+            background: var(--card-bg);
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            padding: 10px 15px;
+            background: #f8f9fa;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .accordion-header:hover {
+            background: #e9ecef;
+        }
+
+        .accordion-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--primary);
+            font-family: 'Playfair Display', serif;
+        }
+
+        .accordion-icon {
+            transition: transform 0.3s ease;
+            font-size: 0.8rem;
+        }
+
+        .topic-accordion.open .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            display: none;
+            padding: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        .topic-accordion.open .accordion-content {
+            display: block;
+        }
+
+        .tree-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tree-item:last-child {
+            border-bottom: none;
+        }
+
+        .tree-item .subhead {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .tree-item .meta {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Hide Grid styles in list view */
+        .view-list .items-grid {
+            display: none;
+        }
+
+        /* View Modes */
+        .view-mode-tree .items-grid {
+            display: none;
+        }
+
+        .view-mode-tree .pdf-list-container {
+            display: none;
+        }
+
+        .view-mode-list .topic-accordion {
+            display: none;
+        }
+
+        /* List View */
+        .index-section {
+            margin-bottom: 10px;
+        }
+
+        /* Item Grid - Legacy/Alternative? Kept for potential reuse or specific styling if needed, but overridden above */
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+    </style>
+</head>
+
+<body class="view-mode-list" data-lang="de">
+    <div class="container">
+        <div class="toolbar">
+            <button id="langToggle" class="btn-toggle">
+                <span class="lang-text">English</span>
+            </button>
+            <button id="viewToggle" class="btn-toggle active">
+                <span id="viewLabel">Baumansicht</span>
+            </button>
+        </div>
+
+        <header>
+            <h1 id="mainTitle">Mennonitische Rundschau Index</h1>
+            <div class="subtitle" id="mainSubtitle">Volume Four (1910–1919</div>
+        </header>
+
+        <main id="content">
+            {% for topic, topic_items in grouped.items() %}
+            <!-- List View Block (PDF Style) -->
+            <div class="pdf-list-container view-list">
+                <div class="pdf-topic">{{ topic }}</div>
+                {% for item in topic_items %}
+                <div class="pdf-entry">
+                    <span class="entry-content">
+                        <strong>{{ item.subhead }}</strong>
+                        {% if item.author %}<span class="entry-meta">; {{ item.author }}</span>{% endif %}
+                        {% if item.date %}<span class="entry-meta">; {{ item.date }}</span>{% endif %}
+                    </span>
+                    <span class="entry-page">
+                        {% if item.link %}
+                        <a href="{{ item.link }}" target="_blank" class="page-btn"><span class="ui-read">Seite</span> {{
+                            item.page }}</a>
+                        {% else %}
+                        <span class="no-link">p.{{ item.page }}</span>
+                        {% endif %}
+                    </span>
+                    {% if item.index_page %}
+                    <span class="entry-index-location"><span class="ui-index-label">Index page</span> {{ item.index_page
+                        }}</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Tree View Block -->
+            <div class="topic-accordion view-tree">
+                <div class="accordion-header" onclick="this.parentElement.classList.toggle('open')">
+                    <h3>{{ topic }}</h3>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    {% for item in topic_items %}
+                    <div class="tree-item">
+                        <div>
+                            <div class="subhead">{{ item.subhead }}</div>
+                            <div class="meta">{{ item.author }} • {{ item.date }}</div>
+                        </div>
+                        <div>
+                            {% if item.link %}
+                            <a href="{{ item.link }}" target="_blank" class="page-btn"><span
+                                    class="ui-read">Seite</span> {{ item.page }}</a>
+                            {% else %}
+                            <span class="no-link">p.{{ item.page }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </main>
+
+        <footer>
+            <p id="footerText">Compiled by Bert Friesen - Centre for Mennonite Brethren Studies - Winnipeg, Manitoba,
+                Canada - 2016</p>
+        </footer>
+    </div>
+
+    <script>
+        const translations = {
+            de: {
+                title: "Mennonitische Rundschau Index",
+                subtitle: "Volume Four (1910–1919)",
+                viewList: "Listenansicht",
+                viewTree: "Baumansicht",
+                readPage: "Seite lesen",
+                readShort: "Seite",
+                footer: "-",
+                langBtn: "English",
+                indexPageLabel: "Index Seite"
+            },
+            en: {
+                title: "Mennonitische Rundschau Index",
+                subtitle: "Volume Four (1910–1919)",
+                viewList: "List View",
+                viewTree: "Tree View",
+                readPage: "Read Page",
+                readShort: "Page",
+                footer: "-",
+                langBtn: "Deutsch",
+                indexPageLabel: "Index page"
+            }
+        };
+
+        const body = document.body;
+        const langToggle = document.getElementById('langToggle');
+        const viewToggle = document.getElementById('viewToggle');
+        const viewLabel = document.getElementById('viewLabel');
+
+        function updateUI() {
+            const lang = body.getAttribute('data-lang');
+            const viewMode = body.classList.contains('view-mode-tree') ? 'tree' : 'list';
+            const t = translations[lang];
+
+            // Text updates
+            document.getElementById('mainTitle').textContent = t.title;
+            document.getElementById('mainSubtitle').textContent = t.subtitle;
+            document.getElementById('footerText').textContent = t.footer;
+            langToggle.querySelector('.lang-text').textContent = t.langBtn;
+
+            viewLabel.textContent = viewMode === 'tree' ? t.viewList : t.viewTree;
+
+            // Update all "Read Page" buttons
+            document.querySelectorAll('.ui-read').forEach(el => {
+                el.textContent = el.parentElement.classList.contains('page-btn') && viewMode === 'list'
+                    ? t.readPage : t.readShort;
+            });
+
+            // Update all Index Page labels
+            document.querySelectorAll('.ui-index-label').forEach(el => {
+                el.textContent = t.indexPageLabel;
+            });
+
+            // Toggle visibility of items based on mode
+            const listItems = document.querySelectorAll('.view-list');
+            const treeItems = document.querySelectorAll('.view-tree');
+
+            if (viewMode === 'list') {
+                listItems.forEach(el => el.style.display = 'block');
+                treeItems.forEach(el => el.style.display = 'none');
+            } else {
+                listItems.forEach(el => el.style.display = 'none');
+                treeItems.forEach(el => el.style.display = 'block');
+            }
+        }
+
+        langToggle.onclick = () => {
+            const current = body.getAttribute('data-lang');
+            body.setAttribute('data-lang', current === 'de' ? 'en' : 'de');
+            updateUI();
+        };
+
+        viewToggle.onclick = () => {
+            body.classList.toggle('view-mode-tree');
+            body.classList.toggle('view-mode-list');
+            updateUI();
+        };
+
+        // Init
+        updateUI();
+    </script>
+</body>
+
+</html>
